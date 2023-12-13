@@ -1,0 +1,14 @@
+const int lightSensorPin = A0;  // Broche analogique pour le capteur de lumière
+int lightValue = 0;
+
+void setup() {
+  pinMode(lightSensorPin, INPUT);
+  Particle.variable("lightValue", lightValue);
+  Serial.begin(9600);
+}
+
+void loop() {
+  lightValue = analogRead(lightSensorPin);
+  Serial.println("Valeur du capteur de lumière : " + String(lightValue));
+  delay(1000);
+}
