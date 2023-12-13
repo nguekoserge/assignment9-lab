@@ -1,0 +1,51 @@
+/ Define pin assignments
+const int trigPin = D2;
+const int echoPin = D3;
+const int ledPin = D4;
+
+int distance = 0;
+bool carParked = false;
+
+void setup() {
+  pinMode(trigPin, OUTPUT);
+  pinMode(echoPin, INPUT);
+  pinMode(ledPin, OUTPUT);
+ 
+  Particle.variable("distance", distance);
+  Particle.variable("carParked", carParked);
+
+  Particle.function("getDistance", getDistance);
+}
+
+void loop() {
+  // Trigger the ultrasonic sensor
+  digitalWrite(trigPin, LOW);
+  delayMicroseconds(2);
+  digitalWrite(trigPin, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(trigPin, LOW);
+ 
+  // Read the distance from the sensor
+  int duration = pulseIn(echoPin, HIGH);
+  distance = duration * 0.034 / 2;
+
+  // Update Particle variables
+  Particle.publish("distanceUpdate", String(distance));
+
+  // Check if the distance is less than 4 inches
+  if (distance < 4) {
+    digitalWrite(ledPin, HIGH);
+    carParked = true;
+    Particle.publish("carParkedEvent", "Car is parked!");
+  } else {
+    digitalWrite(ledPin, LOW);
+    carParked = false;
+  }
+
+  // Wait for a moment before the next measurement
+  delay(1000);
+}
+
+int getDistance(String command) {
+  return distance;
+}
